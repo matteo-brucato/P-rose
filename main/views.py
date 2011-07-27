@@ -37,9 +37,14 @@ def list_greetings(request):
     }
     
     if request.META.get('HTTP_USER_AGENT').find('Android') == -1:
-        return HttpResponse(get_template('app.html').render(Context(context)))
+        context['extra_head'] = '<link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />'
     else:
-        return HttpResponse(get_template('app.html').render(Context(context)))
+        context['extra_head'] = \
+              '<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />'\
+            + '<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.min.js"></script>'\
+            + '<script type="text/javascript" src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script>'
+    
+    return HttpResponse(get_template('app.html').render(Context(context)))
 
 def create_greeting(request):
     if request.method == 'POST':
