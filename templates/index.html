@@ -1,0 +1,48 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+    <title>Page Title</title> 
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />
+    <!--link type="text/css" rel="stylesheet" href="/stylesheets/main.css" /-->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script>
+</head> 
+<body>
+    
+    <div data-role="page">
+        <div data-role="header">
+            <h1>Guestbook</h1>
+        </div>
+        
+        <div data-role="content">
+            {% for greeting in greetings %}
+                {% if greeting.author %}
+                    <b>{{ greeting.author.nickname }}</b> wrote:
+                {% else %}
+                    An anonymous person wrote:
+                {% endif %}
+                <blockquote>{{ greeting.content|escape }}</blockquote>
+            {% endfor %}
+            
+            <div data-role="fieldcontain">
+            <form action="/sign?{{ guestbook_name_action }}" method="post">
+                <div><textarea name="content" rows="3" cols="60"></textarea></div>
+                <div><input type="submit" value="Sign Guestbook"></div>
+            </form>
+            </div>
+
+            <form>Guestbook name: <input value="{{ guestbook_name }}" name="guestbook_name">
+                <input type="submit" value="switch"></form>
+
+            <a href="{{ url }}">{{ url_linktext }}</a>
+        </div>
+        
+        <div data-role="footer">
+            <h4>P-rose</h4>
+        </div>
+    </div>
+    
+    
+
+</body>
+</html>
