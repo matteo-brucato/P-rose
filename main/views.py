@@ -36,7 +36,10 @@ def list_greetings(request):
         'guestbook_name_action': urllib.urlencode({'guestbook_name': guestbook_name})
     }
     
-    return HttpResponse(get_template('index.html').render(Context(context)))
+    if request.META.get('HTTP_USER_AGENT').find('Android') == -1:
+        return HttpResponse(get_template('app.html').render(Context(context)))
+    else:
+        return HttpResponse(get_template('app.html').render(Context(context)))
 
 def create_greeting(request):
     if request.method == 'POST':
