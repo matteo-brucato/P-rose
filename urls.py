@@ -6,7 +6,9 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     (r'^$', 'main.views.list_greetings'),
-    (r'^sign$', 'main.views.create_greeting')
+    (r'^sign$', 'main.views.create_greeting'),
+    (r'^login$', 'main.views.login'),
+    (r'^ClientLogin$', 'main.views.ClientLogin'),
     # Example:
     # (r'^main/', include('main.foo.urls')),
 

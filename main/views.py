@@ -1,18 +1,53 @@
-from django.http import HttpResponse
 import os
 import cgi
 import datetime
 import urllib
-import wsgiref.handlers
+import json
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed
 from django.template import Context, Template
 from django.template.loader import get_template
 
 from google.appengine.ext import db
 from google.appengine.api import users
+from google.appengine.api.urlfetch import *
 
 from main.models import *
+
+
+def login(request):
+    context = {}
+    return HttpResponse(get_template('login.html').render(Context(context)))
+
+
+def ClientLogin(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    # Execute POST request to Google ClientLogin
+    post_data = request.POST
+    for d in post_data:
+        a = d.decode('utf-8')
+        d = a.encode('ascii')
+    result = fetch("https://www.google.com/accounts/ClientLogin",
+        method = POST,
+        payload = urllib.urlencode(post_data),
+        headers = {'Content-type': 'application/x-www-form-urlencoded'},
+        allow_truncated = False,
+        follow_redirects = False,
+        deadline = None,
+        validate_certificate = None)
+    # Check result and set response
+    obj = {'Encoding': request.encoding}
+    if result.status_code == 200:
+        obj['Return'] = 0
+    else:
+        obj['Return'] = -1
+    # Parse result and insert it into a dictionary to be returned as json
+    for line in result.content.split('\n'):
+        if line == '': continue
+        pos = line.find('=')
+        obj[line[0:pos]] = line[pos+1:]
+    return HttpResponse(json.dumps(obj, indent=2), mimetype="text/plain")
 
 
 def list_greetings(request):
@@ -36,15 +71,8 @@ def list_greetings(request):
         'guestbook_name_action': urllib.urlencode({'guestbook_name': guestbook_name})
     }
     
-    if request.META.get('HTTP_USER_AGENT').find('Android') == -1:
-        context['extra_head'] = '<link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />'
-    else:
-        context['extra_head'] = \
-              '<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />'\
-            + '<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.min.js"></script>'\
-            + '<script type="text/javascript" src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script>'
-    
-    return HttpResponse(get_template('app.html').render(Context(context)))
+    return HttpResponse(get_template('guestbook.html').render(Context(context)))
+
 
 def create_greeting(request):
     if request.method == 'POST':

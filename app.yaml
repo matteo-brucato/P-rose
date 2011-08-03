@@ -7,5 +7,13 @@ handlers:
 - url: /stylesheets
   static_dir: stylesheets
 
+- url: /_ah/login_required
+  script: do_openid_login.py
+
+#- url: /ClientLogin
+#  script: ClientLogin.py
+
 - url: /.*
   script: appengine_main.py
+  #login: required
+  secure: always

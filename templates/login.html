@@ -1,0 +1,81 @@
+{% extends "app.html" %}
+
+{% block content %}
+    
+    <script type="text/javascript">
+    $('form').submit(function(event) {
+        // Stop form from submitting normally
+        event.preventDefault(); 
+        
+        // Execute Ajax request to ClientLogin
+        $.ajax({
+            type: 'POST',
+            url: '/ClientLogin',
+            data: $(this).serialize(),
+            success: function(data, status) {
+                if (data.Return == -1) {
+                    // Login failed
+                    alert('result: ' + data.Encoding);
+                    switch (data.Error) {
+                        case 'BadAuthentication':
+                            $('#login').slideDown();
+                            $('#captcha').slideUp();
+                            break;
+                        case 'NotVerified':
+                            break;
+                        case 'TermsNotAgreed':
+                            break;
+                        case 'CaptchaRequired':
+                            $('#captcha').append('<img src="http://www.google.com/accounts/' + data.CaptchaUrl + '" />');
+                            $('input[name="logintoken"]').attr('value', data.CaptchaToken);
+                            $('#login').slideUp();
+                            $('#captcha').slideDown();
+                            break;
+                        case 'Unknown':
+                            break;
+                        case 'AccountDeleted':
+                            break;
+                        case 'AccountDisabled':
+                            break;
+                        case 'ServiceDisabled':
+                            break;
+                        case 'ServiceUnavailable':
+                            break;
+                    }
+                }
+                else {
+                    // Login succeeded
+                    alert('You are logged in, Auth: ' + data.Auth);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('error: ' + errorThrown);
+            },
+            dataType: 'json'
+        });
+
+    });
+    </script>
+    
+    <div id="login">
+        <form id="loginForm">
+            <input type="hidden" name="accountType" value="HOSTED_OR_GOOGLE" />
+            <input type="hidden" name="service" value="mail" />
+            <input type="hidden" name="source" value="Localhost-Prose-1" />
+            <input type="text" name="Email" />
+            <input type="password" name="Passwd" />
+            <input type="submit" value="Authenticate" />
+        </form>
+    </div>
+    <div id="captcha" style="display:none;">
+        Captcha required:
+        <form id="captchaForm">
+            <input type="hidden" name="accountType" value="HOSTED_OR_GOOGLE" />
+            <input type="hidden" name="source" value="Localhost-Prose-1" />
+            <input type="hidden" name="logintoken" />
+            <input type="text" name="logincaptcha" />
+            <input type="submit" value="Send" />
+        </form>
+    </div>
+
+{% endblock %}
